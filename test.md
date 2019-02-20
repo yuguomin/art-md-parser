@@ -1,6 +1,10 @@
 1. ### 活动首页
- - GET
- - /activity/doubleeleven/index
+
+#### detail
+| 类别 | 详情 |
+| --- | --- |
+| request-method | GET |
+| request-url | /activity/doubleeleven/index |
 
 #### params
 | 参数名    | 类型  | 说明     | 示例 |
