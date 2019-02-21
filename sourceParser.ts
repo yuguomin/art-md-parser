@@ -31,8 +31,6 @@ recast.visit(ast, {
 });
 // console.log(node.value.declaration);
 // console.log(recast.print(node.value.declaration.body).code);
-import declaration from './ast/tsInterfaceAst'
-console.log(recast.print(declaration).code);
 
 
 // console.log(`
