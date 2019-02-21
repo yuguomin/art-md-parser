@@ -8,15 +8,32 @@ const ast = recast.parse(source, {
 });
 
 let node;
+var cache = [];
 recast.visit(ast, {
   visitExportNamedDeclaration: function(this, nodePath) {
     if (!nodePath.node.declaration) { return this.traverse(nodePath) }
     node = nodePath;
-    node.node.declaration.id.name = 'Guomin'
+    node.node.declaration.id.name = 'Guomin';
+    // circular Object to JSON
+    // console.log(JSON.stringify(nodePath, function(key, value: never) {
+    //   if (typeof value === 'object' && value !== null) {
+    //       if (cache.indexOf(value) !== -1) {
+    //           // Circular reference found, discard key
+    //           return;
+    //       }
+    //       // Store value in our collection
+    //       cache.push(value);
+    //   }
+      // return value;
+  // }));
     return this.traverse(nodePath);
   }
 });
-console.log(recast.print(node).code);
+// console.log(node.value.declaration);
+// console.log(recast.print(node.value.declaration.body).code);
+import declaration from './ast/tsInterfaceAst'
+console.log(recast.print(declaration).code);
+
 
 // console.log(`
 // CODE: 
