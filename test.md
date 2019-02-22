@@ -60,7 +60,7 @@
 #### detail
 | 类别 | 详情 |
 | --- | --- |
-| request-method | GET |
+| request-method | POST |
 | request-url | /activity/doubleeleven/index |
 
 #### params
