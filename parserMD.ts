@@ -3,9 +3,14 @@ import { readFileSync } from 'fs';
 const tsParser = require('recast/parsers/typescript');
 const marked = require('marked');
 
+const interfaceAst = require('./ast/TSExample/exportInterfaceAst');
+
+const isCutOut = require('./art.config').isCutOut;
+
 // first: get md ast
 const md = readFileSync('./test.md', 'UTF8');
 const tokens = marked.lexer(md);
+
 
 // second: md ast change into typescript ast and format to interface.ts
 const extractAllInterfaceChunk = (mdAst): never[] => {
@@ -38,7 +43,7 @@ const extractUseTables = (findTableType: string[], chunkData: any[]) => {
 
 
 const extractChooseTable = (tableText: string, chunkData: any[]) => {
-  let result: object = {};
+  let result = {};
   chunkData.forEach((value, index) => {
     // confirm right table chunk
     if (value.type === 'heading' && value.depth === 4 && value.text === tableText) {
@@ -52,6 +57,39 @@ const extractChooseTable = (tableText: string, chunkData: any[]) => {
   return result;
 }
 
-const result = extractAllInterfaceChunk(tokens)
-console.log(JSON.stringify(result));
+const createInterfaceName = (detailTable: any) => {
+  let resultStr: string = '';
+  let urlStr: string = '';
+  const tableCells = flattenArray(detailTable.cells);
+  tableCells.find((value, index) => {
+    if (value === 'request-url') {
+      urlStr = tableCells[index + 1];
+    }
+  })
+  
+  urlStr = isCutOut ? urlStr.replace(/\/\w+/, '') : urlStr
+
+  resultStr = 'I' + urlStr.replace(/\/(\w)/g, (all, letter) => {
+    return letter.toUpperCase();
+  })
+
+  console.log(resultStr);
+  return tableCells;
+}
+
+
+const flattenArray = (arr) => {
+  return arr.reduce((prev, next) => {
+    return prev.concat(Array.isArray(next) ? flattenArray(next) : next)
+  }, [])
+}
+
 // third: parse to interface.ts
+const replaceTsAst = () => {
+  const result = extractAllInterfaceChunk(tokens)
+  result.forEach((value, index) => {
+    createInterfaceName((<any>value).detail);
+  })
+}
+
+replaceTsAst();

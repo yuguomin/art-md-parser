@@ -61,7 +61,7 @@
 | 类别 | 详情 |
 | --- | --- |
 | request-method | POST |
-| request-url | /activity/doubleeleven/index |
+| request-url | /activity/doublexxx/detail |
 
 #### params
 | 参数名    | 类型  | 说明     | 示例 |
