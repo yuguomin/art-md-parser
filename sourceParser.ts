@@ -29,7 +29,7 @@ recast.visit(ast, {
     return this.traverse(nodePath);
   }
 });
-// console.log(node.value.declaration);
+console.log(JSON.stringify(node.value));
 // console.log(recast.print(node.value.declaration.body).code);
 
 

@@ -73,8 +73,8 @@ const createInterfaceName = (detailTable: any) => {
     return letter.toUpperCase();
   })
 
-  console.log(resultStr);
-  return tableCells;
+  // console.log(resultStr);
+  return resultStr;
 }
 
 
@@ -86,10 +86,26 @@ const flattenArray = (arr) => {
 
 // third: parse to interface.ts
 const replaceTsAst = () => {
-  const result = extractAllInterfaceChunk(tokens)
-  result.forEach((value, index) => {
-    createInterfaceName((<any>value).detail);
+  let result = [];
+  const interfaceGather = extractAllInterfaceChunk(tokens)
+  interfaceGather.forEach((value, index) => {
+    let singChunk = objDeepCopy(interfaceAst) as any;
+    singChunk.ExportInterfaceAst.id.name = createInterfaceName((<any>value).detail);
+    // console.log(interfaceAst);
+    result.push(singChunk.ExportInterfaceAst as never);
+    // createInterfaceName((<any>value).detail);
   })
+  // TODO: replace name
 }
+
+
+const objDeepCopy = (source) => {
+  var sourceCopy = source instanceof Array ? [] : {};
+  for (var item in source) {
+      sourceCopy[item] = typeof source[item] === 'object' ? objDeepCopy(source[item]) : source[item];
+  }
+  return sourceCopy;
+}
+
 
 replaceTsAst();
