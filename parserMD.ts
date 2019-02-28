@@ -1,5 +1,5 @@
 import recast from 'recast';
-import { readFileSync } from 'fs';
+import { readFileSync, appendFile, appendFileSync } from 'fs';
 const tsParser = require('recast/parsers/typescript');
 const marked = require('marked');
 
@@ -92,9 +92,12 @@ const replaceTsAst = () => {
     let singChunk = objDeepCopy(interfaceAst) as any;
     singChunk.ExportInterfaceAst.id.name = createInterfaceName((<any>value).detail);
     // console.log(interfaceAst);
-    result.push(singChunk.ExportInterfaceAst as never);
+    // result.push(singChunk.ExportInterfaceAst as never);
+    appendFileSync('./result/test.ts', recast.print(singChunk.ExportInterfaceAst as never).code, 'utf8');
     // createInterfaceName((<any>value).detail);
   })
+  // console.log(recast.print(interfaceAst).code)
+  // console.log(recast.print(result[1] as never).code);
   // TODO: replace name
 }
 
