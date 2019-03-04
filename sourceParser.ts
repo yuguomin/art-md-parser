@@ -13,7 +13,7 @@ recast.visit(ast, {
   visitExportNamedDeclaration: function(this, nodePath) {
     if (!nodePath.node.declaration) { return this.traverse(nodePath) }
     node = nodePath;
-    node.node.declaration.id.name = 'Guomin';
+    // node.node.declaration.id.name = 'Guomin';
     // circular Object to JSON
     // console.log(JSON.stringify(nodePath, function(key, value: never) {
     //   if (typeof value === 'object' && value !== null) {
@@ -29,8 +29,10 @@ recast.visit(ast, {
     return this.traverse(nodePath);
   }
 });
-console.log(JSON.stringify(node.value));
-// console.log(recast.print(node.value.declaration.body).code);
+// console.log(JSON.stringify(node.value));
+console.log(JSON.stringify(ast));
+// console.log(JSON.stringify(node.value));
+console.log(recast.print(node).code);
 
 
 // console.log(`
