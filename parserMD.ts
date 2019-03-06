@@ -92,8 +92,21 @@ const replaceTsAst = () => {
     let singChunk = objDeepCopy(interfaceAst) as any;
     singChunk.ExportInterfaceAst.id.name = createInterfaceName((<any>value).detail);
     // console.log(interfaceAst);
+    /** 
+     * body.body是一个数组，每一个索引值就是一个annotation,其中的key.name为属性，typeAnnotation.typeAnnotation.type为类型
+     * 此处需要处理就是在每一个属性table中找到对应的每一个返回参数，分别加入body中，然后最终append
+     */
+    const singChunkBody = objDeepCopy(singChunk.ExportInterfaceAst.body.body[0]) as any;
+    singChunkBody.key.name = 'zbw'
+    singChunkBody.typeAnnotation.typeAnnotation.type = 'TSStringKeyword'
+    singChunk.ExportInterfaceAst.body.body.push(singChunkBody)
+    // console.log(JSON.stringify(singChunk.ExportInterfaceAst))
+    // singChunk.ExportInterfaceAst.body.body[0].key.name = 'ygm'
+    // singChunk.ExportInterfaceAst.body.body[0].typeAnnotation.typeAnnotation.type = 'TSNumberKeyword'
+
+
     // result.push(singChunk.ExportInterfaceAst as never);
-    appendFileSync('./result/test.ts', recast.print(singChunk.ExportInterfaceAst as never).code, 'utf8');
+    appendFileSync('./result/test.ts', `\n${recast.print(singChunk.ExportInterfaceAst as never).code}`, 'utf8');
     // createInterfaceName((<any>value).detail);
   })
   // console.log(recast.print(interfaceAst).code)
