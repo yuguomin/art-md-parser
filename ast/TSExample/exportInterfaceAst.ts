@@ -18,7 +18,7 @@ export const ExportInterfaceAst = {
           typeAnnotation: {
             type: "", // annotation type
             elementType: {
-              type: "TSTypeReference",
+              type: 'TSTypeReference',
               typeName: {
                 type: "Identifier",
                 name: "" // interface anntation name

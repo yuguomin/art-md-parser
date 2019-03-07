@@ -10,7 +10,8 @@ const isCutOut = require("./art.config").isCutOut;
 enum TypeAnnotations {
   int = "TSNumberKeyword",
   string = "TSStringKeyword",
-  boolean = "TSBooleanKeyword"
+  boolean = "TSBooleanKeyword",
+  array = "TSArrayType"
 }
 
 // first: get md ast
@@ -111,16 +112,7 @@ const createInterfaceBody = (explainTable: any) => {
     ) as any;
     bodyTemplate.key.name = value[nameIndex];
     // bodyTemplate.typeAnnotation.typeAnnotation.type = TypeAnnotations[value[typeIndex]];
-    bodyTemplate.typeAnnotation.typeAnnotation = getTypeAnnotation(value[typeIndex]);
-    // bodyTemplate.typeAnnotation.typeAnnotation.type = "TSTypeReference";
-    // bodyTemplate.typeAnnotation.typeAnnotation.type = "TSArrayType";
-    // bodyTemplate.typeAnnotation.typeAnnotation.elementType = {
-    //   type: "TSTypeReference",
-    //   typeName: {
-    //     type: "Identifier",
-    //     name: "XXX",
-    //   }
-    // };
+    bodyTemplate.typeAnnotation = getTypeAnnotation(value[typeIndex]);
     return bodyTemplate;
   });
   return result;
@@ -128,7 +120,11 @@ const createInterfaceBody = (explainTable: any) => {
 
 const getTypeAnnotation = (type) => {
   const anntationTpl = objDeepCopy(interfaceAst.ExportInterfaceAst.body.body[0].typeAnnotation) as any;
-  anntationTpl.type = TypeAnnotations[type];
+  anntationTpl.typeAnnotation.type = TypeAnnotations[type];
+  if (type === 'array') {
+    anntationTpl.typeAnnotation.elementType.typeName.name = 'xxx'
+    // console.log(JSON.stringify(anntationTpl))
+  }
   return anntationTpl;
 }
 
