@@ -106,14 +106,18 @@ const createInterfaceBody = (explainTable: any) => {
     ["参数名", "类型", "说明", "parents", "示例"],
     explainTable.header
   );
-  const result = explainTable.cells.map(value => {
-    const bodyTemplate = objDeepCopy(
-      interfaceAst.ExportInterfaceAst.body.body[0]
-    ) as any;
-    bodyTemplate.key.name = value[nameIndex];
-    // bodyTemplate.typeAnnotation.typeAnnotation.type = TypeAnnotations[value[typeIndex]];
-    bodyTemplate.typeAnnotation = getTypeAnnotation(value[typeIndex]);
-    return bodyTemplate;
+  const result = [];
+  explainTable.cells.forEach(value => {
+    if (value[parentsIndex] === 'data') {
+      const bodyTemplate = objDeepCopy(
+        interfaceAst.ExportInterfaceAst.body.body[0]
+      ) as any;
+      bodyTemplate.key.name = value[nameIndex];
+      // bodyTemplate.typeAnnotation.typeAnnotation.type = TypeAnnotations[value[typeIndex]];
+      bodyTemplate.typeAnnotation = getTypeAnnotation(value[typeIndex]);
+      result.push(bodyTemplate as never);
+    }
+    // TODO: add createChildrenInterface and differentiate every parents
   });
   return result;
 };
