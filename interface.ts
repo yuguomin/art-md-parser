@@ -1,3 +1,6 @@
+export interface XXX {
+  age: number
+}
 export interface IGetGoldIndex {
-  start_time: number
+  start_time: XXX[]
 }
