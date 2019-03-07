@@ -7,10 +7,21 @@ const interfaceAst = require('./ast/TSExample/exportInterfaceAst');
 
 const isCutOut = require('./art.config').isCutOut;
 
+// const TypeAnnotations = {
+//   int: 'TSNumberKeyword',
+//   string: 'TSStringKeyword',
+//   boolean: 'TSBooleanKeyword'
+// }
+
+enum TypeAnnotations {
+  int= 'TSNumberKeyword',
+  string= 'TSStringKeyword',
+  boolean= 'TSBooleanKeyword'
+}
+
 // first: get md ast
 const md = readFileSync('./test.md', 'UTF8');
 const tokens = marked.lexer(md);
-
 
 // second: md ast change into typescript ast and format to interface.ts
 const extractAllInterfaceChunk = (mdAst): never[] => {
@@ -57,6 +68,7 @@ const extractChooseTable = (tableText: string, chunkData: any[]) => {
   return result;
 }
 
+// 生成最终的一个interface名字
 const createInterfaceName = (detailTable: any) => {
   let resultStr: string = '';
   let urlStr: string = '';
@@ -66,23 +78,28 @@ const createInterfaceName = (detailTable: any) => {
       urlStr = tableCells[index + 1];
     }
   })
-  
   urlStr = isCutOut ? urlStr.replace(/\/\w+/, '') : urlStr
-
   resultStr = 'I' + urlStr.replace(/\/(\w)/g, (all, letter) => {
     return letter.toUpperCase();
   })
-
-  // console.log(resultStr);
   return resultStr;
 }
 
-
-const flattenArray = (arr) => {
-  return arr.reduce((prev, next) => {
-    return prev.concat(Array.isArray(next) ? flattenArray(next) : next)
-  }, [])
+// 生成interface的body部分
+const createInterfaceBody = (explainTable: any) => {
+  // 获取对应的参数名，类型，说明，parents, 示例的index
+  // console.log(explainTable);
+  const [nameIndex, typeIndex, explainIndex, parentsIndex, exampleIndex]
+  = findAllIndex(['参数名', '类型', '说明', 'parents', '示例'], explainTable.header)
+  const result = explainTable.cells.map((value, index) => {
+    const bodyTemplate = objDeepCopy(interfaceAst.ExportInterfaceAst.body.body[0]) as any;
+    bodyTemplate.key.name = value[nameIndex];
+    bodyTemplate.typeAnnotation.typeAnnotation.type = TypeAnnotations[value[typeIndex]];
+    return bodyTemplate;
+  })
+  return result;
 }
+
 
 // third: parse to interface.ts
 const replaceTsAst = () => {
@@ -91,27 +108,13 @@ const replaceTsAst = () => {
   interfaceGather.forEach((value, index) => {
     let singChunk = objDeepCopy(interfaceAst) as any;
     singChunk.ExportInterfaceAst.id.name = createInterfaceName((<any>value).detail);
-    // console.log(interfaceAst);
-    /** 
-     * body.body是一个数组，每一个索引值就是一个annotation,其中的key.name为属性，typeAnnotation.typeAnnotation.type为类型
-     * 此处需要处理就是在每一个属性table中找到对应的每一个返回参数，分别加入body中，然后最终append
-     */
-    const singChunkBody = objDeepCopy(singChunk.ExportInterfaceAst.body.body[0]) as any;
-    singChunkBody.key.name = 'zbw'
-    singChunkBody.typeAnnotation.typeAnnotation.type = 'TSStringKeyword'
-    singChunk.ExportInterfaceAst.body.body.push(singChunkBody)
-    // console.log(JSON.stringify(singChunk.ExportInterfaceAst))
-    // singChunk.ExportInterfaceAst.body.body[0].key.name = 'ygm'
-    // singChunk.ExportInterfaceAst.body.body[0].typeAnnotation.typeAnnotation.type = 'TSNumberKeyword'
-
-
-    // result.push(singChunk.ExportInterfaceAst as never);
+     /** 
+      * body.body是一个数组，每一个索引值就是一个annotation,其中的key.name为属性，typeAnnotation.typeAnnotation.type为类型
+      * 此处需要处理就是在每一个属性table中找到对应的每一个返回参数，分别加入body中，然后最终append
+      */
+    singChunk.ExportInterfaceAst.body.body = createInterfaceBody((<any>value).explain);
     appendFileSync('./result/test.ts', `\n${recast.print(singChunk.ExportInterfaceAst as never).code}`, 'utf8');
-    // createInterfaceName((<any>value).detail);
   })
-  // console.log(recast.print(interfaceAst).code)
-  // console.log(recast.print(result[1] as never).code);
-  // TODO: replace name
 }
 
 
@@ -123,5 +126,18 @@ const objDeepCopy = (source) => {
   return sourceCopy;
 }
 
+const flattenArray = (arr) => {
+  return arr.reduce((prev, next) => {
+    return prev.concat(Array.isArray(next) ? flattenArray(next) : next)
+  }, [])
+}
+
+const findAllIndex = (findArr, TargetArr) => {
+  const indexGather = []
+  findArr.forEach(value => {
+    indexGather.push(TargetArr.indexOf(value) as never)
+  })
+  return indexGather;
+}
 
 replaceTsAst();

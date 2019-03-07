@@ -1,9 +1,23 @@
 
 interface IActivityDoubleelevenIndex {
-    start_time: string;
-    zbw: string;
+    chance: number;
+    rest_amount: number;
+    my_reward_count: number;
+    rewards: boolean;
+    mobile: string;
+    reward_name: string;
+    invest_url: string;
+    is_login: boolean;
+    activity_status: number;
 }
 interface IActivityDoublexxxDetail {
-    start_time: string;
-    zbw: string;
+    chance: number;
+    rest_amount: number;
+    my_reward_count: number;
+    rewards: boolean;
+    mobile: string;
+    reward_name: string;
+    invest_url: string;
+    is_login: boolean;
+    activity_status: number;
 }

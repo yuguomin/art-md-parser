@@ -9,20 +9,20 @@
 #### params
 | 参数名    | 类型  | 说明     | 示例 |
 | --------- | ----- | -------- | ---- |
-| reward_id | `int` | 奖励的id | 111  |
+| reward_id | int | 奖励的id | 111  |
 
 #### explain
 | 参数名           | 类型      | 说明                 | parents | 示例  |
 | --------------- | --------- | ------------------- | ------- | ---- |
-| chance          | `int`     | 剩余抽奖机会          | data    | 0 |
-| rest_amount     | `int`     | 剩余足够抽奖的金额(分) | data    | 100000 |
-| my_reward_count | `int`     | 已经获取过的奖励数量   | data    | 14 |
-| rewards         | `array`   | 随机抽奖数据          | data    | |
-| mobile          | `string`  | 手机号               | rewards | 185xxxx6523 |
-| reward_name     | `string`  | 奖励名称             | rewards | 111积分 |
-| invest_url      | `string`  | 出借地址             | data    |  http://qsq.com/h5/#/products/activity/products-activity?except_types=6 |
-| is_login        | `boolean` | 是否登录             | data    | true |
-| activity_status | `int`     | 活动状态             | data    | 0活动未开始 1活动进行中 2活动已经结束 |
+| chance          | int     | 剩余抽奖机会          | data    | 0 |
+| rest_amount     | int     | 剩余足够抽奖的金额(分) | data    | 100000 |
+| my_reward_count | int     | 已经获取过的奖励数量   | data    | 14 |
+| rewards         | boolean   | 随机抽奖数据          | data    | |
+| mobile          | string  | 手机号               | rewards | 185xxxx6523 |
+| reward_name     | string  | 奖励名称             | rewards | 111积分 |
+| invest_url      | string  | 出借地址             | data    |  http://qsq.com/h5/#/products/activity/products-activity?except_types=6 |
+| is_login        | boolean | 是否登录             | data    | true |
+| activity_status | int     | 活动状态             | data    | 0活动未开始 1活动进行中 2活动已经结束 |
 
 #### example
 ```json
@@ -66,20 +66,20 @@
 #### params
 | 参数名    | 类型  | 说明     | 示例 |
 | --------- | ----- | -------- | ---- |
-| reward_id | `int` | 奖励的id | 111  |
+| reward_id | int | 奖励的id | 111  |
 
 #### explain
 | 参数名           | 类型      | 说明                 | parents | 示例  |
 | --------------- | --------- | ------------------- | ------- | ---- |
-| chance          | `int`     | 剩余抽奖机会          | data    | 0 |
-| rest_amount     | `int`     | 剩余足够抽奖的金额(分) | data    | 100000 |
-| my_reward_count | `int`     | 已经获取过的奖励数量   | data    | 14 |
-| rewards         | `array`   | 随机抽奖数据          | data    | |
-| mobile          | `string`  | 手机号               | rewards | 185xxxx6523 |
-| reward_name     | `string`  | 奖励名称             | rewards | 111积分 |
-| invest_url      | `string`  | 出借地址             | data    |  http://qsq.com/h5/#/products/activity/products-activity?except_types=6 |
-| is_login        | `boolean` | 是否登录             | data    | true |
-| activity_status | `int`     | 活动状态             | data    | 0活动未开始 1活动进行中 2活动已经结束 |
+| chance          | int     | 剩余抽奖机会          | data    | 0 |
+| rest_amount     | int     | 剩余足够抽奖的金额(分) | data    | 100000 |
+| my_reward_count | int     | 已经获取过的奖励数量   | data    | 14 |
+| rewards         | boolean   | 随机抽奖数据          | data    | |
+| mobile          | string  | 手机号               | rewards | 185xxxx6523 |
+| reward_name     | string  | 奖励名称             | rewards | 111积分 |
+| invest_url      | string  | 出借地址             | data    |  http://qsq.com/h5/#/products/activity/products-activity?except_types=6 |
+| is_login        | boolean | 是否登录             | data    | true |
+| activity_status | int     | 活动状态             | data    | 0活动未开始 1活动进行中 2活动已经结束 |
 
 #### example
 ```json
