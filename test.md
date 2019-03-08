@@ -14,7 +14,7 @@
 #### explain
 | 参数名           | 类型      | 说明                 | parents | 示例  |
 | --------------- | --------- | ------------------- | ------- | ---- |
-| chance          | int     | 剩余抽奖机会          | data    | 0 |
+| chance          | int     | 剩余抽奖机会         | data    | 0 |
 | rest_amount     | int     | 剩余足够抽奖的金额(分) | data    | 100000 |
 | my_reward_count | int     | 已经获取过的奖励数量   | data    | 14 |
 | rewards         | array   | 随机抽奖数据          | data    | |

@@ -93,7 +93,7 @@ const createInterfaceName = (detailTable: any) => {
 };
 
 // 生成interface的body部分
-const createInterfaceBody = (explainTable: any) => {
+const createInterfaceBody = (explainTable: any, currentParent) => {
   // 获取对应的参数名，类型，说明，parents, 示例的index
   // console.log(explainTable);
   const [
@@ -108,25 +108,48 @@ const createInterfaceBody = (explainTable: any) => {
   );
   const result = [];
   explainTable.cells.forEach(value => {
-    if (value[parentsIndex] === 'data') {
+    if (value[parentsIndex] === currentParent) {
       const bodyTemplate = objDeepCopy(
         interfaceAst.ExportInterfaceAst.body.body[0]
       ) as any;
       bodyTemplate.key.name = value[nameIndex];
       // bodyTemplate.typeAnnotation.typeAnnotation.type = TypeAnnotations[value[typeIndex]];
-      bodyTemplate.typeAnnotation = getTypeAnnotation(value[typeIndex]);
+      bodyTemplate.typeAnnotation = getTypeAnnotation(value[typeIndex], value[nameIndex]);
       result.push(bodyTemplate as never);
-    }
+    };
     // TODO: add createChildrenInterface and differentiate every parents
+    if (value[parentsIndex] === currentParent && ['array', 'object'].includes(value[typeIndex])) {
+      const childrenChunk = {} as any;
+      childrenChunk.header = explainTable.header;
+      childrenChunk.cells = explainTable.cells.filter(cell => cell[parentsIndex] === value[nameIndex]);
+      createChildrenInterface(value, childrenChunk, value[nameIndex]);
+    };
   });
   return result;
 };
 
-const getTypeAnnotation = (type) => {
+// 当前的一个interface命名保存数组
+
+/** 
+ * 当父节点不为data && 其类型为array或者object时需要创建一个interface
+ * 当需要创建的时候可以把其他父节点为其值的创建body
+ */
+const createChildrenInterface = (singleCell, childrenBody, parentName) => {
+  const singleChunk = objDeepCopy(interfaceAst) as any;
+  singleChunk.ExportInterfaceAst.id.name = parentName;
+  singleChunk.ExportInterfaceAst.body.body = createInterfaceBody(childrenBody, parentName);
+  appendFileSync(
+    "./result/test.ts",
+    `\n${recast.print(singleChunk.ExportInterfaceAst as never).code}`,
+    "utf8"
+  );
+}
+
+const getTypeAnnotation = (type, name) => {
   const anntationTpl = objDeepCopy(interfaceAst.ExportInterfaceAst.body.body[0].typeAnnotation) as any;
   anntationTpl.typeAnnotation.type = TypeAnnotations[type];
   if (type === 'array') {
-    anntationTpl.typeAnnotation.elementType.typeName.name = 'xxx'
+    anntationTpl.typeAnnotation.elementType.typeName.name = name;
     // console.log(JSON.stringify(anntationTpl))
   }
   return anntationTpl;
@@ -137,20 +160,20 @@ const replaceTsAst = () => {
   let result = [];
   const interfaceGather = extractAllInterfaceChunk(tokens);
   interfaceGather.forEach((value, index) => {
-    let singChunk = objDeepCopy(interfaceAst) as any;
-    singChunk.ExportInterfaceAst.id.name = createInterfaceName(
+    let singleChunk = objDeepCopy(interfaceAst) as any;
+    singleChunk.ExportInterfaceAst.id.name = createInterfaceName(
       (<any>value).detail
     );
     /**
      * body.body是一个数组，每一个索引值就是一个annotation,其中的key.name为属性，typeAnnotation.typeAnnotation.type为类型
      * 此处需要处理就是在每一个属性table中找到对应的每一个返回参数，分别加入body中，然后最终append
      */
-    singChunk.ExportInterfaceAst.body.body = createInterfaceBody(
-      (<any>value).explain
+    singleChunk.ExportInterfaceAst.body.body = createInterfaceBody(
+      (<any>value).explain, 'data'
     );
     appendFileSync(
       "./result/test.ts",
-      `\n${recast.print(singChunk.ExportInterfaceAst as never).code}`,
+      `\n${recast.print(singleChunk.ExportInterfaceAst as never).code}`,
       "utf8"
     );
   });
