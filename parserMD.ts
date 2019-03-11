@@ -135,14 +135,7 @@ const createInterfaceBody = (explainTable: any, currentParent) => {
  * 当需要创建的时候可以把其他父节点为其值的创建body
  */
 const createChildrenInterface = (singleCell, childrenBody, parentName) => {
-  const singleChunk = objDeepCopy(interfaceAst) as any;
-  singleChunk.ExportInterfaceAst.id.name = parentName;
-  singleChunk.ExportInterfaceAst.body.body = createInterfaceBody(childrenBody, parentName);
-  appendFileSync(
-    "./result/test.ts",
-    `\n${recast.print(singleChunk.ExportInterfaceAst as never).code}`,
-    "utf8"
-  );
+  appendInterfaceTofile(parentName, createInterfaceBody(childrenBody, parentName))
 }
 
 const getTypeAnnotation = (type, name) => {
@@ -160,24 +153,27 @@ const replaceTsAst = () => {
   let result = [];
   const interfaceGather = extractAllInterfaceChunk(tokens);
   interfaceGather.forEach((value, index) => {
-    let singleChunk = objDeepCopy(interfaceAst) as any;
-    singleChunk.ExportInterfaceAst.id.name = createInterfaceName(
-      (<any>value).detail
-    );
     /**
      * body.body是一个数组，每一个索引值就是一个annotation,其中的key.name为属性，typeAnnotation.typeAnnotation.type为类型
      * 此处需要处理就是在每一个属性table中找到对应的每一个返回参数，分别加入body中，然后最终append
      */
-    singleChunk.ExportInterfaceAst.body.body = createInterfaceBody(
-      (<any>value).explain, 'data'
-    );
-    appendFileSync(
-      "./result/test.ts",
-      `\n${recast.print(singleChunk.ExportInterfaceAst as never).code}`,
-      "utf8"
-    );
+    const interfaceName = createInterfaceName((<any>value).detail);
+    const interfaceBody = createInterfaceBody((<any>value).explain, 'data');
+    appendInterfaceTofile(interfaceName, interfaceBody);
   });
 };
+
+const appendInterfaceTofile = (interfaceName, interfaceBody) => {
+  const singleChunk = objDeepCopy(interfaceAst) as any;
+  singleChunk.ExportInterfaceAst.id.name = interfaceName;
+  singleChunk.ExportInterfaceAst.body.body = interfaceBody;
+  appendFileSync(
+    "./result/test.ts",
+    `\n${recast.print(singleChunk.ExportInterfaceAst as never).code}`,
+    "utf8"
+  );
+}
+
 
 const objDeepCopy = source => {
   var sourceCopy = source instanceof Array ? [] : {};
