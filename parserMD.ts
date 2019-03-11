@@ -117,9 +117,9 @@ const createInterfaceBody = (explainTable: any, currentParent) => {
       bodyTemplate.typeAnnotation = getTypeAnnotation(value[typeIndex], value[nameIndex]);
       result.push(bodyTemplate as never);
     };
-    // TODO: add createChildrenInterface and differentiate every parents
     if (value[parentsIndex] === currentParent && ['array', 'object'].includes(value[typeIndex])) {
       const childrenChunk = {} as any;
+      // TODO: 这里就应该判断一下是否是重复的interfaceName, 是则覆盖
       childrenChunk.header = explainTable.header;
       childrenChunk.cells = explainTable.cells.filter(cell => cell[parentsIndex] === value[nameIndex]);
       createChildrenInterface(value, childrenChunk, value[nameIndex]);
@@ -129,6 +129,17 @@ const createInterfaceBody = (explainTable: any, currentParent) => {
 };
 
 // 当前的一个interface命名保存数组
+const interfaceNameArr = [];
+
+const isRepeatName = (interfaceName: never) => {
+  if (interfaceNameArr.includes(interfaceName)) {
+    return true;
+  } else {
+    interfaceNameArr.push(interfaceName)
+    return false;
+  }
+}
+
 
 /** 
  * 当父节点不为data && 其类型为array或者object时需要创建一个interface
