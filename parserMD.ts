@@ -14,6 +14,9 @@ enum TypeAnnotations {
   array = "TSArrayType"
 }
 
+// 当前的一个interface命名保存数组
+const interfaceNameArr = [];
+
 // first: get md ast
 const md = readFileSync("./test.md", "UTF8");
 const tokens = marked.lexer(md);
@@ -93,7 +96,7 @@ const createInterfaceName = (detailTable: any) => {
 };
 
 // 生成interface的body部分
-const createInterfaceBody = (explainTable: any, currentParent) => {
+const createInterfaceBody = (explainTable: any, currentParent, parentInterface?: any) => {
   // 获取对应的参数名，类型，说明，parents, 示例的index
   // console.log(explainTable);
   const [
@@ -107,11 +110,11 @@ const createInterfaceBody = (explainTable: any, currentParent) => {
     explainTable.header
   );
   const result = [];
-  explainTable.cells.forEach(value => {
+  explainTable.cells.forEach((value, index) => {
+    const bodyTemplate = objDeepCopy(
+      interfaceAst.ExportInterfaceAst.body.body[0]
+    ) as any;
     if (value[parentsIndex] === currentParent) {
-      const bodyTemplate = objDeepCopy(
-        interfaceAst.ExportInterfaceAst.body.body[0]
-      ) as any;
       bodyTemplate.key.name = value[nameIndex];
       // bodyTemplate.typeAnnotation.typeAnnotation.type = TypeAnnotations[value[typeIndex]];
       bodyTemplate.typeAnnotation = getTypeAnnotation(value[typeIndex], value[nameIndex]);
@@ -120,16 +123,17 @@ const createInterfaceBody = (explainTable: any, currentParent) => {
     if (value[parentsIndex] === currentParent && ['array', 'object'].includes(value[typeIndex])) {
       const childrenChunk = {} as any;
       // TODO: 这里就应该判断一下是否是重复的interfaceName, 是则覆盖
+      const formatName = firstWordUpperCase(value[nameIndex]);
+      let childrenName = `I${formatName}`;
+      (<any>result[index]).typeAnnotation.typeAnnotation.elementType.typeName.name = childrenName =
+      `${isRepeatName(value[nameIndex] as never) ? parentInterface : 'I'}${formatName}`;
       childrenChunk.header = explainTable.header;
       childrenChunk.cells = explainTable.cells.filter(cell => cell[parentsIndex] === value[nameIndex]);
-      createChildrenInterface(value, childrenChunk, value[nameIndex]);
+      createChildrenInterface(value, childrenChunk, value[nameIndex], childrenName);
     };
   });
   return result;
 };
-
-// 当前的一个interface命名保存数组
-const interfaceNameArr = [];
 
 const isRepeatName = (interfaceName: never) => {
   if (interfaceNameArr.includes(interfaceName)) {
@@ -145,8 +149,8 @@ const isRepeatName = (interfaceName: never) => {
  * 当父节点不为data && 其类型为array或者object时需要创建一个interface
  * 当需要创建的时候可以把其他父节点为其值的创建body
  */
-const createChildrenInterface = (singleCell, childrenBody, parentName) => {
-  appendInterfaceTofile(parentName, createInterfaceBody(childrenBody, parentName))
+const createChildrenInterface = (singleCell, childrenBody, parentName, finalName) => {
+  appendInterfaceTofile(parentName, createInterfaceBody(childrenBody, parentName), finalName)
 }
 
 const getTypeAnnotation = (type, name) => {
@@ -169,14 +173,14 @@ const replaceTsAst = () => {
      * 此处需要处理就是在每一个属性table中找到对应的每一个返回参数，分别加入body中，然后最终append
      */
     const interfaceName = createInterfaceName((<any>value).detail);
-    const interfaceBody = createInterfaceBody((<any>value).explain, 'data');
+    const interfaceBody = createInterfaceBody((<any>value).explain, 'data', interfaceName);
     appendInterfaceTofile(interfaceName, interfaceBody);
   });
 };
 
-const appendInterfaceTofile = (interfaceName, interfaceBody) => {
+const appendInterfaceTofile = (interfaceName, interfaceBody, finalName?: string) => {
   const singleChunk = objDeepCopy(interfaceAst) as any;
-  singleChunk.ExportInterfaceAst.id.name = interfaceName;
+  singleChunk.ExportInterfaceAst.id.name = finalName || interfaceName;
   singleChunk.ExportInterfaceAst.body.body = interfaceBody;
   appendFileSync(
     "./result/test.ts",
@@ -210,5 +214,11 @@ const findAllIndex = (findArr, TargetArr) => {
   });
   return indexGather;
 };
+
+const firstWordUpperCase = (str) => {
+  return str.toLowerCase().replace(/(\s|^)[a-z]/g, function(char){
+      return char.toUpperCase();
+  });
+}
 
 replaceTsAst();
