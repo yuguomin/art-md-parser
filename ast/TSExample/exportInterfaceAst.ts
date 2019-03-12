@@ -23,6 +23,10 @@ export const ExportInterfaceAst = {
                 type: "Identifier",
                 name: "" // interface anntation name
               }
+            },
+            typeName: {
+              type: "Identifier",
+              name: "" // interface anntation name
             }
           }
         }

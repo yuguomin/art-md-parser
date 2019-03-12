@@ -11,7 +11,8 @@ enum TypeAnnotations {
   int = "TSNumberKeyword",
   string = "TSStringKeyword",
   boolean = "TSBooleanKeyword",
-  array = "TSArrayType"
+  array = "TSArrayType",
+  object = "TSTypeReference"
 }
 
 // 当前的一个interface命名保存数组
@@ -122,12 +123,18 @@ const createInterfaceBody = (explainTable: any, currentParent, parentInterface?:
     };
     if (value[parentsIndex] === currentParent && ['array', 'object'].includes(value[typeIndex])) {
       const childrenChunk = {} as any;
-      // TODO: 这里就应该判断一下是否是重复的interfaceName, 是则覆盖
       const formatName = firstWordUpperCase(value[nameIndex]);
       let childrenName = `I${formatName}`;
-      (<any>result[index]).typeAnnotation.typeAnnotation.elementType.typeName.name = childrenName =
-      `${isRepeatName(value[nameIndex] as never) ? parentInterface : 'I'}${formatName}`;
-      childrenChunk.header = explainTable.header;
+      if (value[typeIndex] === 'array') {
+        (<any>result[index]).typeAnnotation.typeAnnotation.elementType.typeName.name = childrenName =
+        `${isRepeatName(value[nameIndex] as never) ? parentInterface : 'I'}${formatName}`;
+        childrenChunk.header = explainTable.header;
+      }
+      if (value[typeIndex] === 'object') {
+        (<any>result[index]).typeAnnotation.typeAnnotation.typeName.name = childrenName =
+        `${isRepeatName(value[nameIndex] as never) ? parentInterface : 'I'}${formatName}`;
+        childrenChunk.header = explainTable.header;
+      }
       childrenChunk.cells = explainTable.cells.filter(cell => cell[parentsIndex] === value[nameIndex]);
       createChildrenInterface(value, childrenChunk, value[nameIndex], childrenName);
     };
@@ -159,6 +166,9 @@ const getTypeAnnotation = (type, name) => {
   if (type === 'array') {
     anntationTpl.typeAnnotation.elementType.typeName.name = name;
     // console.log(JSON.stringify(anntationTpl))
+  }
+  if (type === 'object') {
+    anntationTpl.typeAnnotation.typeName.name = name;
   }
   return anntationTpl;
 }

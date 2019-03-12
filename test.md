@@ -74,7 +74,7 @@
 | chance          | int     | 剩余抽奖机会          | data    | 0 |
 | rest_amount     | int     | 剩余足够抽奖的金额(分) | data    | 100000 |
 | my_reward_count | int     | 已经获取过的奖励数量   | data    | 14 |
-| rewards         | array   | 随机抽奖数据          | data    | |
+| rewards         | object   | 随机抽奖数据          | data    | |
 | tel          | string  | 手机号               | rewards | 185xxxx6523 |
 | rew_name     | string  | 奖励名称             | rewards | 111积分 |
 | invest_url      | string  | 出借地址             | data    |  http://qsq.com/h5/#/products/activity/products-activity?except_types=6 |
