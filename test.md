@@ -26,7 +26,9 @@
 | invest_url      | string  | 出借地址             | data    |  http://qsq.com/h5/#/products/activity/products-activity?except_types=6 |
 | is_login        | boolean | 是否登录             | data    | true |
 | activity_status | int     | 活动状态             | data    | 0活动未开始 1活动进行中 2活动已经结束 |
-| list    | object  | 奖励名称             | data | 111积分 |
+| list    | array  | 奖励名称             | data | 111积分 |
+| rewards | object | asd | list | sdd |
+| type | int | asd | rewards | asd |
 
 #### example
 ```json

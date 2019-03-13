@@ -97,9 +97,9 @@ const createInterfaceName = (detailTable: any) => {
 };
 
 // 生成interface的body部分
+let prefixName: string;
 const createInterfaceBody = (explainTable: any, currentParent, parentInterface?: any) => {
   // 获取对应的参数名，类型，说明，parents, 示例的index
-  // console.log(explainTable);
   const [
     nameIndex,
     typeIndex,
@@ -107,7 +107,7 @@ const createInterfaceBody = (explainTable: any, currentParent, parentInterface?:
     parentsIndex,
     exampleIndex
   ] = findAllIndex(
-    ["参数名", "类型", "说明", "parents", "示例"],
+    ['参数名', '类型', '说明', 'parents', '示例'],
     explainTable.header
   );
   const result = [];
@@ -121,7 +121,6 @@ const createInterfaceBody = (explainTable: any, currentParent, parentInterface?:
       bodyTemplate.typeAnnotation = getTypeAnnotation(value[typeIndex], value[nameIndex]);
       result.push(bodyTemplate as never);
     };
-    // console.log('value[parentsIndex]:', value[parentsIndex], 'currentParent:', currentParent);
     if (value[parentsIndex] === currentParent && ['array', 'object'].includes(value[typeIndex])) {
       const childrenChunk = {} as any;
       const formatName = firstWordUpperCase(value[nameIndex]);
@@ -171,6 +170,8 @@ const isRepeatName = (interfaceName: never) => {
  * 当需要创建的时候可以把其他父节点为其值的创建body
  */
 const createChildrenInterface = (singleCell, childrenBody, parentName, finalName) => {
+  console.log(finalName);
+  // TODO: 三级以上的重复的interfaceName也无法取到对应interface的值
   appendInterfaceTofile(parentName, createInterfaceBody(childrenBody, parentName), finalName)
 }
 
@@ -179,7 +180,6 @@ const getTypeAnnotation = (type, name) => {
   anntationTpl.typeAnnotation.type = TypeAnnotations[type];
   if (type === 'array') {
     anntationTpl.typeAnnotation.elementType.typeName.name = name;
-    // console.log(JSON.stringify(anntationTpl))
   }
   if (type === 'object') {
     anntationTpl.typeAnnotation.typeName.name = name;
