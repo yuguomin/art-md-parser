@@ -11,20 +11,20 @@ interface IRewards {
     rew: IRew;
     type: number;
 }
-interface undefinedThird {
+interface IActivityDoublexxxDetailListRewardsRewThird {
     fourth: boolean;
 }
-interface undefinedRew {
+interface IActivityDoublexxxDetailListRewardsRew {
     rew_name: string;
-    third: undefinedThird;
+    third: IActivityDoublexxxDetailListRewardsRewThird;
 }
-interface undefinedRewards {
+interface IActivityDoublexxxDetailListRewards {
     tel: string;
-    rew: undefinedRew;
+    rew: IActivityDoublexxxDetailListRewardsRew;
     type: number;
 }
 interface IList {
-    rewards: undefinedRewards;
+    rewards: IActivityDoublexxxDetailListRewards;
 }
 interface IActivityDoublexxxDetail {
     chance: number;

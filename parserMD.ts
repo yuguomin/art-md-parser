@@ -98,7 +98,7 @@ const createInterfaceName = (detailTable: any) => {
 
 // 生成interface的body部分
 let prefixName: string;
-const createInterfaceBody = (explainTable: any, currentParent, parentInterface?: any) => {
+const createInterfaceBody = (explainTable: any, currentParent, prefixName?: any) => {
   // 获取对应的参数名，类型，说明，parents, 示例的index
   const [
     nameIndex,
@@ -127,12 +127,12 @@ const createInterfaceBody = (explainTable: any, currentParent, parentInterface?:
       let childrenName = `I${formatName}`;
       if (value[typeIndex] === 'array') {
         (<any>result[result.length - 1]).typeAnnotation.typeAnnotation.elementType.typeName.name = childrenName =
-        `${isRepeatName(value[nameIndex] as never) ? parentInterface : 'I'}${formatName}`;
+        `${isRepeatName(value[nameIndex] as never) ? prefixName : 'I'}${formatName}`;
         childrenChunk.header = explainTable.header;
       }
       if (value[typeIndex] === 'object') {
         (<any>result[result.length - 1]).typeAnnotation.typeAnnotation.typeName.name = childrenName =
-        `${isRepeatName(value[nameIndex] as never) ? parentInterface : 'I'}${formatName}`;
+        `${isRepeatName(value[nameIndex] as never) ? prefixName : 'I'}${formatName}`;
         childrenChunk.header = explainTable.header;
       }
       // 这里三级嵌套没有生成的原因主要是因为二级的table已经只包含父级为子interface的，再在其中找就没了
@@ -149,7 +149,7 @@ const createInterfaceBody = (explainTable: any, currentParent, parentInterface?:
         }
       });
       // childrenChunk.cells = explainTable.cells;
-      createChildrenInterface(value, childrenChunk, value[nameIndex], childrenName);
+      createChildrenInterface(value, childrenChunk, value[nameIndex], childrenName, prefixName);
     };
   });
   return result;
@@ -169,10 +169,9 @@ const isRepeatName = (interfaceName: never) => {
  * 当父节点不为data && 其类型为array或者object时需要创建一个interface
  * 当需要创建的时候可以把其他父节点为其值的创建body
  */
-const createChildrenInterface = (singleCell, childrenBody, parentName, finalName) => {
-  console.log(finalName);
-  // TODO: 三级以上的重复的interfaceName也无法取到对应interface的值
-  appendInterfaceTofile(parentName, createInterfaceBody(childrenBody, parentName), finalName)
+const createChildrenInterface = (singleCell, childrenBody, parentName, finalName, prefixName) => {
+  prefixName = prefixName + firstWordUpperCase(parentName);
+  appendInterfaceTofile(parentName, createInterfaceBody(childrenBody, parentName, prefixName), finalName)
 }
 
 const getTypeAnnotation = (type, name) => {
