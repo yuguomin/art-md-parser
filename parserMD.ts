@@ -127,12 +127,12 @@ const createInterfaceBody = (explainTable: any, currentParent, parentInterface?:
       const formatName = firstWordUpperCase(value[nameIndex]);
       let childrenName = `I${formatName}`;
       if (value[typeIndex] === 'array') {
-        (<any>result[index]).typeAnnotation.typeAnnotation.elementType.typeName.name = childrenName =
+        (<any>result[result.length - 1]).typeAnnotation.typeAnnotation.elementType.typeName.name = childrenName =
         `${isRepeatName(value[nameIndex] as never) ? parentInterface : 'I'}${formatName}`;
         childrenChunk.header = explainTable.header;
       }
       if (value[typeIndex] === 'object') {
-        (<any>result[index]).typeAnnotation.typeAnnotation.typeName.name = childrenName =
+        (<any>result[result.length - 1]).typeAnnotation.typeAnnotation.typeName.name = childrenName =
         `${isRepeatName(value[nameIndex] as never) ? parentInterface : 'I'}${formatName}`;
         childrenChunk.header = explainTable.header;
       }
@@ -153,7 +153,6 @@ const createInterfaceBody = (explainTable: any, currentParent, parentInterface?:
       createChildrenInterface(value, childrenChunk, value[nameIndex], childrenName);
     };
   });
-  // TODO: 处理三级嵌套
   return result;
 };
 

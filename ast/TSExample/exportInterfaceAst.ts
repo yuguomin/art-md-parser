@@ -21,12 +21,12 @@ export const ExportInterfaceAst = {
               type: 'TSTypeReference',
               typeName: {
                 type: "Identifier",
-                name: "" // interface anntation name
+                name: "" // array interface anntation name
               }
             },
             typeName: {
               type: "Identifier",
-              name: "" // interface anntation name
+              name: "" // obj interface anntation name
             }
           }
         }
