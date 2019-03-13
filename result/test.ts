@@ -12,9 +12,12 @@ interface IActivityDoubleelevenIndex {
     is_login: boolean;
     activity_status: number;
 }
+interface IRew {
+    rew_name: string;
+}
 interface IActivityDoublexxxDetailRewards {
     tel: string;
-    rew_name: string;
+    rew: IRew[];
 }
 interface IActivityDoublexxxDetail {
     chance: number;

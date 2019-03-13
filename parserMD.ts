@@ -114,13 +114,14 @@ const createInterfaceBody = (explainTable: any, currentParent, parentInterface?:
   explainTable.cells.forEach((value, index) => {
     const bodyTemplate = objDeepCopy(
       interfaceAst.ExportInterfaceAst.body.body[0]
-    ) as any;
+      ) as any;
     if (value[parentsIndex] === currentParent) {
       bodyTemplate.key.name = value[nameIndex];
       // bodyTemplate.typeAnnotation.typeAnnotation.type = TypeAnnotations[value[typeIndex]];
       bodyTemplate.typeAnnotation = getTypeAnnotation(value[typeIndex], value[nameIndex]);
       result.push(bodyTemplate as never);
     };
+    // console.log('value[parentsIndex]:', value[parentsIndex], 'currentParent:', currentParent);
     if (value[parentsIndex] === currentParent && ['array', 'object'].includes(value[typeIndex])) {
       const childrenChunk = {} as any;
       const formatName = firstWordUpperCase(value[nameIndex]);
@@ -135,10 +136,24 @@ const createInterfaceBody = (explainTable: any, currentParent, parentInterface?:
         `${isRepeatName(value[nameIndex] as never) ? parentInterface : 'I'}${formatName}`;
         childrenChunk.header = explainTable.header;
       }
-      childrenChunk.cells = explainTable.cells.filter(cell => cell[parentsIndex] === value[nameIndex]);
+      // 这里三级嵌套没有生成的原因主要是因为二级的table已经只包含父级为子interface的，再在其中找就没了
+      // childrenChunk.cells = explainTable.cells.filter(cell => cell[parentsIndex] === value[nameIndex]);
+      let childrenNameGather = [value[nameIndex]];
+      childrenChunk.cells = explainTable.cells.filter(cell => {
+        // 这里先找到符合该项的每一个子集，如果子集是对象，再把该对象子集找到
+        // TODO: 但是如果二级的名字和三级的名字相同，会出现额外body查找，需要处理
+        if (['array', 'object'].includes(cell[typeIndex])) {
+          childrenNameGather.push(cell[nameIndex])
+        }
+        if (childrenNameGather.includes(cell[parentsIndex])) {
+          return cell;
+        }
+      });
+      // childrenChunk.cells = explainTable.cells;
       createChildrenInterface(value, childrenChunk, value[nameIndex], childrenName);
     };
   });
+  // TODO: 处理三级嵌套
   return result;
 };
 
