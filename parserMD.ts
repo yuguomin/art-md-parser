@@ -1,6 +1,5 @@
 import recast from 'recast';
-import marked from 'marked';
-import { readFileSync, appendFileSync } from 'fs';
+import { appendFileSync } from 'fs';
 import { findAllIndex, firstWordUpperCase, flattenArray, objDeepCopy, toHump } from './utils/tools';
 import { TypeAnnotations } from './ast/typeAnnotationsMap';
 import ExportInterfaceAst from './ast/TSExample/exportInterfaceAst';
@@ -8,66 +7,6 @@ import isCutOut from './art.config';
 
 // 当前的一个interface命名保存数组
 const interfaceNameArr = [];
-
-// first: get md ast
-const md = readFileSync('./test.md', 'UTF8');
-const tokens = marked.lexer(md);
-
-// second: md ast change into typescript ast and format to interface.ts
-export const extractAllInterfaceChunk = (mdAst): never[] => {
-  // extract every interface detail and explain add to an Object and push an Array
-  const interfaceGather = [];
-  let chunkStart = 0;
-  mdAst.forEach((value, index) => {
-    if (value.type === 'list_start' && index) {
-      const chunkData = mdAst.slice(chunkStart, index);
-      interfaceGather.push(extractUseTables(
-        ['detail', 'explain'],
-        chunkData
-      ) as never);
-    }
-    if (value.type === 'list_start') {
-      chunkStart = index;
-    }
-    if (index === mdAst.length - 1) {
-      const chunkData = mdAst.slice(chunkStart, index);
-      interfaceGather.push(extractUseTables(
-        ['detail', 'explain'],
-        chunkData
-      ) as never);
-    }
-  });
-  return interfaceGather;
-};
-
-const extractUseTables = (findTableType: string[], chunkData: any[]) => {
-  const userTables = {};
-  findTableType.forEach(value => {
-    userTables[value] = extractChooseTable(value, chunkData);
-  });
-  return userTables;
-};
-
-const extractChooseTable = (tableText: string, chunkData: any[]) => {
-  let result = {};
-  chunkData.forEach((value, index) => {
-    // confirm right table chunk
-    if (
-      value.type === 'heading' &&
-      value.depth === 4 &&
-      value.text === tableText
-    ) {
-      result =
-        chunkData.find((tableValue, tableIndex) => {
-          if (tableIndex > index && tableValue.type === 'table') {
-            return tableValue;
-          }
-        }) || {};
-    }
-  });
-  return result;
-};
-
 // 生成最终的一个interface名字
 export const createInterfaceName = (detailTable: any) => {
   let resultStr: string = '';
@@ -135,7 +74,7 @@ export const createInterfaceBody = (explainTable: any, currentParent, prefixName
       });
 
       // childrenChunk.cells = explainTable.cells;
-      createChildrenInterface(value, childrenChunk, value[parentsIndex] + '.' +  value[nameIndex], childrenName, prefixName);
+      createChildrenInterface(childrenChunk, value[parentsIndex] + '.' +  value[nameIndex], childrenName, prefixName);
     };
   });
   return result;
@@ -154,7 +93,7 @@ const isRepeatName = (interfaceName: never) => {
  * 当父节点不为data && 其类型为array或者object时需要创建一个interface
  * 当需要创建的时候可以把其他父节点为其值的创建body
  */
-const createChildrenInterface = (singleCell, childrenBody, parentName, finalName, prefixName) => {
+const createChildrenInterface = (childrenBody, parentName, finalName, prefixName) => {
   // prefixName = prefixName + firstWordUpperCase(parentName.replace(/\./g,'));
   prefixName = prefixName + toHump(firstWordUpperCase(parentName), '.');
   appendInterfaceTofile(parentName, createInterfaceBody(childrenBody, parentName, prefixName), finalName)
