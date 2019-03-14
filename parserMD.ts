@@ -90,6 +90,7 @@ const createInterfaceName = (detailTable: any) => {
   urlStr = isCutOut ? urlStr.replace(/\/\w+/, "") : urlStr;
   resultStr =
     "I" +
+    // TODO: 需要解决三级的时候名字带.问题 ，写一个共同方法
     urlStr.replace(/\/(\w)/g, (all, letter) => {
       return letter.toUpperCase();
     });
@@ -97,7 +98,7 @@ const createInterfaceName = (detailTable: any) => {
 };
 
 // 生成interface的body部分
-let prefixName: string;
+const highestNode = 'data';
 const createInterfaceBody = (explainTable: any, currentParent, prefixName?: any) => {
   // 获取对应的参数名，类型，说明，parents, 示例的index
   const [
@@ -142,14 +143,16 @@ const createInterfaceBody = (explainTable: any, currentParent, prefixName?: any)
         // 这里先找到符合该项的每一个子集，如果子集是对象，再把该对象子集找到
         // TODO: 但是如果二级的名字和三级的名字相同，会出现额外body查找，需要处理
         if (['array', 'object'].includes(cell[typeIndex])) {
-          childrenNameGather.push(cell[nameIndex])
+          childrenNameGather.push(cell[parentsIndex] + '.' + cell[nameIndex]);
         }
         if (childrenNameGather.includes(cell[parentsIndex])) {
           return cell;
         }
       });
+      console.log(JSON.stringify(childrenChunk));
+
       // childrenChunk.cells = explainTable.cells;
-      createChildrenInterface(value, childrenChunk, value[nameIndex], childrenName, prefixName);
+      createChildrenInterface(value, childrenChunk, value[parentsIndex] + '.' +  value[nameIndex], childrenName, prefixName);
     };
   });
   return result;
@@ -170,7 +173,7 @@ const isRepeatName = (interfaceName: never) => {
  * 当需要创建的时候可以把其他父节点为其值的创建body
  */
 const createChildrenInterface = (singleCell, childrenBody, parentName, finalName, prefixName) => {
-  prefixName = prefixName + firstWordUpperCase(parentName);
+  prefixName = prefixName + firstWordUpperCase(parentName.replace(/\./g,""));
   appendInterfaceTofile(parentName, createInterfaceBody(childrenBody, parentName, prefixName), finalName)
 }
 
@@ -212,7 +215,9 @@ const appendInterfaceTofile = (interfaceName, interfaceBody, finalName?: string)
   );
 }
 
-
+/** 
+ * 深拷贝
+*/
 const objDeepCopy = source => {
   var sourceCopy = source instanceof Array ? [] : {};
   for (var item in source) {
@@ -224,12 +229,18 @@ const objDeepCopy = source => {
   return sourceCopy;
 };
 
+/** 
+ * 数组扁平化
+*/
 const flattenArray = arr => {
   return arr.reduce((prev, next) => {
     return prev.concat(Array.isArray(next) ? flattenArray(next) : next);
   }, []);
 };
 
+/** 
+ * 找到对应index
+*/
 const findAllIndex = (findArr, TargetArr) => {
   const indexGather = [];
   findArr.forEach(value => {
@@ -238,10 +249,22 @@ const findAllIndex = (findArr, TargetArr) => {
   return indexGather;
 };
 
+/** 
+ * 字符串首字母大写
+*/
 const firstWordUpperCase = (str) => {
   return str.toLowerCase().replace(/(\s|^)[a-z]/g, function(char){
       return char.toUpperCase();
   });
 }
 
+/** 
+ * 转驼峰
+*/
+const toHump = (name, symbol = '/') => {
+  const reg = new RegExp(`\\${symbol}(\\w)`, 'g')
+  return name.replace(reg, function(all, letter){
+      return letter.toUpperCase();
+  });
+}
 replaceTsAst();
