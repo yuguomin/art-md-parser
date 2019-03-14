@@ -88,12 +88,14 @@ const createInterfaceName = (detailTable: any) => {
     }
   });
   urlStr = isCutOut ? urlStr.replace(/\/\w+/, "") : urlStr;
+  console.log(urlStr)
   resultStr =
     "I" +
     // TODO: 需要解决三级的时候名字带.问题 ，写一个共同方法
-    urlStr.replace(/\/(\w)/g, (all, letter) => {
-      return letter.toUpperCase();
-    });
+    // urlStr.replace(/\/(\w)/g, (all, letter) => {
+    //   return letter.toUpperCase();
+    // });
+    toHump(urlStr, '/')
   return resultStr;
 };
 
@@ -141,7 +143,6 @@ const createInterfaceBody = (explainTable: any, currentParent, prefixName?: any)
       let childrenNameGather = [value[nameIndex]];
       childrenChunk.cells = explainTable.cells.filter(cell => {
         // 这里先找到符合该项的每一个子集，如果子集是对象，再把该对象子集找到
-        // TODO: 但是如果二级的名字和三级的名字相同，会出现额外body查找，需要处理
         if (['array', 'object'].includes(cell[typeIndex])) {
           childrenNameGather.push(cell[parentsIndex] + '.' + cell[nameIndex]);
         }
@@ -149,7 +150,6 @@ const createInterfaceBody = (explainTable: any, currentParent, prefixName?: any)
           return cell;
         }
       });
-      console.log(JSON.stringify(childrenChunk));
 
       // childrenChunk.cells = explainTable.cells;
       createChildrenInterface(value, childrenChunk, value[parentsIndex] + '.' +  value[nameIndex], childrenName, prefixName);
@@ -167,13 +167,13 @@ const isRepeatName = (interfaceName: never) => {
   }
 }
 
-
 /** 
  * 当父节点不为data && 其类型为array或者object时需要创建一个interface
  * 当需要创建的时候可以把其他父节点为其值的创建body
  */
 const createChildrenInterface = (singleCell, childrenBody, parentName, finalName, prefixName) => {
-  prefixName = prefixName + firstWordUpperCase(parentName.replace(/\./g,""));
+  // prefixName = prefixName + firstWordUpperCase(parentName.replace(/\./g,""));
+  prefixName = prefixName + toHump(firstWordUpperCase(parentName), '.');
   appendInterfaceTofile(parentName, createInterfaceBody(childrenBody, parentName, prefixName), finalName)
 }
 
