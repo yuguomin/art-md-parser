@@ -1,3 +1,4 @@
+import {findAllIndex, firstWordUpperCase, flattenArray, objDeepCopy, toHump} from './utils/';
 import recast from "recast";
 import { readFileSync, appendFile, appendFileSync } from "fs";
 const tsParser = require("recast/parsers/typescript");
@@ -217,7 +218,6 @@ const appendInterfaceTofile = (interfaceName, interfaceBody, finalName?: string)
     type: 'ExportNamedDeclaration'
   }
   result.declaration = singleChunk.ExportInterfaceAst
-  console.log(result)
   appendFileSync(
     "./result/test.ts",
     `\n${recast.print(result).code}`,
@@ -225,56 +225,4 @@ const appendInterfaceTofile = (interfaceName, interfaceBody, finalName?: string)
   );
 }
 
-/** 
- * 深拷贝
-*/
-const objDeepCopy = source => {
-  var sourceCopy = source instanceof Array ? [] : {};
-  for (var item in source) {
-    sourceCopy[item] =
-      typeof source[item] === "object"
-        ? objDeepCopy(source[item])
-        : source[item];
-  }
-  return sourceCopy;
-};
-
-/** 
- * 数组扁平化
-*/
-const flattenArray = arr => {
-  return arr.reduce((prev, next) => {
-    return prev.concat(Array.isArray(next) ? flattenArray(next) : next);
-  }, []);
-};
-
-/** 
- * 找到对应index
-*/
-const findAllIndex = (findArr, TargetArr) => {
-  const indexGather = [];
-  findArr.forEach(value => {
-    indexGather.push(TargetArr.indexOf(value) as never);
-  });
-  return indexGather;
-};
-
-/** 
- * 字符串首字母大写
-*/
-const firstWordUpperCase = (str) => {
-  return str.toLowerCase().replace(/(\s|^)[a-z]/g, function(char){
-      return char.toUpperCase();
-  });
-}
-
-/** 
- * 转驼峰
-*/
-const toHump = (name, symbol = '/') => {
-  const reg = new RegExp(`\\${symbol}(\\w)`, 'g')
-  return name.replace(reg, function(all, letter){
-      return letter.toUpperCase();
-  });
-}
 replaceTsAst();
