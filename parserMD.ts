@@ -1,8 +1,8 @@
-import {findAllIndex, firstWordUpperCase, flattenArray, objDeepCopy, toHump} from './utils';
-import {TypeAnnotations} from './ast/typeAnnotationsMap';
 import recast from 'recast';
 import marked from 'marked';
 import { readFileSync, appendFileSync } from 'fs';
+import { findAllIndex, firstWordUpperCase, flattenArray, objDeepCopy, toHump } from './utils/tools';
+import { TypeAnnotations } from './ast/typeAnnotationsMap';
 import ExportInterfaceAst from './ast/TSExample/exportInterfaceAst';
 import isCutOut from './art.config';
 
@@ -14,7 +14,7 @@ const md = readFileSync('./test.md', 'UTF8');
 const tokens = marked.lexer(md);
 
 // second: md ast change into typescript ast and format to interface.ts
-const extractAllInterfaceChunk = (mdAst): never[] => {
+export const extractAllInterfaceChunk = (mdAst): never[] => {
   // extract every interface detail and explain add to an Object and push an Array
   const interfaceGather = [];
   let chunkStart = 0;
@@ -42,8 +42,8 @@ const extractAllInterfaceChunk = (mdAst): never[] => {
 
 const extractUseTables = (findTableType: string[], chunkData: any[]) => {
   const userTables = {};
-  findTableType.forEach(v => {
-    userTables[v] = extractChooseTable(v, chunkData);
+  findTableType.forEach(value => {
+    userTables[value] = extractChooseTable(value, chunkData);
   });
   return userTables;
 };
@@ -69,7 +69,7 @@ const extractChooseTable = (tableText: string, chunkData: any[]) => {
 };
 
 // 生成最终的一个interface名字
-const createInterfaceName = (detailTable: any) => {
+export const createInterfaceName = (detailTable: any) => {
   let resultStr: string = '';
   let urlStr: string = '';
   const tableCells = flattenArray(detailTable.cells);
@@ -84,8 +84,7 @@ const createInterfaceName = (detailTable: any) => {
 };
 
 // 生成interface的body部分
-const highestNode = 'data';
-const createInterfaceBody = (explainTable: any, currentParent, prefixName?: any) => {
+export const createInterfaceBody = (explainTable: any, currentParent, prefixName?: any) => {
   // 获取对应的参数名，类型，说明，parents, 示例的index
   const [
     nameIndex,
@@ -173,28 +172,12 @@ const getTypeAnnotation = (type, name) => {
   return anntationTpl;
 }
 
-// third: parse to interface.ts
-const replaceTsAst = () => {
-
-  let result = [];
-  const interfaceGather = extractAllInterfaceChunk(tokens);
-  interfaceGather.forEach((value, index) => {
-    /**
-     * body.body是一个数组，每一个索引值就是一个annotation,其中的key.name为属性，typeAnnotation.typeAnnotation.type为类型
-     * 此处需要处理就是在每一个属性table中找到对应的每一个返回参数，分别加入body中，然后最终append
-     */
-    const interfaceName = createInterfaceName((<any>value).detail);
-    const interfaceBody = createInterfaceBody((<any>value).explain, 'data', interfaceName);
-    appendInterfaceTofile(interfaceName, interfaceBody);
-  });
-};
-
 interface interfaceAstReuslt {
   type: string;
   declaration?: any;
 }
 
-const appendInterfaceTofile = (interfaceName, interfaceBody, finalName?: string) => {
+export const appendInterfaceTofile = (interfaceName, interfaceBody, finalName?: string) => {
   const singleChunk = objDeepCopy(ExportInterfaceAst) as any;
   singleChunk.id.name = finalName || interfaceName;
   singleChunk.body.body = interfaceBody;
@@ -208,5 +191,3 @@ const appendInterfaceTofile = (interfaceName, interfaceBody, finalName?: string)
     'utf8'
   );
 }
-
-replaceTsAst();

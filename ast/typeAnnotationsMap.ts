@@ -9,3 +9,8 @@ export enum TypeAnnotations {
   array = "TSArrayType",
   object = "TSTypeReference"
 }
+
+/** 
+ * 定义了数据格式中的最高父级
+*/
+export const highestParent = 'data';
