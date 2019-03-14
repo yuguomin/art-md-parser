@@ -204,13 +204,23 @@ const replaceTsAst = () => {
   });
 };
 
+interface interfaceAstReuslt {
+  type: string;
+  declaration?: any;
+}
+
 const appendInterfaceTofile = (interfaceName, interfaceBody, finalName?: string) => {
   const singleChunk = objDeepCopy(interfaceAst) as any;
   singleChunk.ExportInterfaceAst.id.name = finalName || interfaceName;
   singleChunk.ExportInterfaceAst.body.body = interfaceBody;
+  let result:interfaceAstReuslt = {
+    type: 'ExportNamedDeclaration'
+  }
+  result.declaration = singleChunk.ExportInterfaceAst
+  console.log(result)
   appendFileSync(
     "./result/test.ts",
-    `\n${recast.print(singleChunk.ExportInterfaceAst as never).code}`,
+    `\n${recast.print(result).code}`,
     "utf8"
   );
 }

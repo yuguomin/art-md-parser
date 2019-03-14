@@ -1,22 +1,22 @@
 
-interface IThird {
+export interface IThird {
     fourth: boolean;
 }
-interface IRew {
+export interface IRew {
     rew_name: string;
     third: IThird;
 }
-interface IRewards {
+export interface IRewards {
     tel: string;
     rew: IRew;
 }
-interface IActivityDoublexxxDetailDataListRewards {
+export interface IActivityDoublexxxDetailDataListRewards {
     type: number;
 }
-interface IList {
+export interface IList {
     rewards: IActivityDoublexxxDetailDataListRewards;
 }
-interface IActivityDoublexxxDetail {
+export interface IActivityDoublexxxDetail {
     chance: number;
     rest_amount: number;
     my_reward_count: number;
