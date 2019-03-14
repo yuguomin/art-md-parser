@@ -10,13 +10,13 @@ export interface IRewards {
     tel: string;
     rew: IRew;
 }
-export interface IActivityDoublexxxDetailDataListRewards {
+export interface IDoublexxxDetailDataListRewards {
     type: number;
 }
 export interface IList {
-    rewards: IActivityDoublexxxDetailDataListRewards;
+    rewards: IDoublexxxDetailDataListRewards;
 }
-export interface IActivityDoublexxxDetail {
+export interface IDoublexxxDetail {
     chance: number;
     rest_amount: number;
     my_reward_count: number;

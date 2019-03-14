@@ -1,26 +1,16 @@
-import {findAllIndex, firstWordUpperCase, flattenArray, objDeepCopy, toHump} from './utils/';
-import recast from "recast";
-import { readFileSync, appendFile, appendFileSync } from "fs";
-const tsParser = require("recast/parsers/typescript");
-const marked = require("marked");
-
-const interfaceAst = require("./ast/TSExample/exportInterfaceAst");
-
-const isCutOut = require("./art.config").isCutOut;
-
-enum TypeAnnotations {
-  int = "TSNumberKeyword",
-  string = "TSStringKeyword",
-  boolean = "TSBooleanKeyword",
-  array = "TSArrayType",
-  object = "TSTypeReference"
-}
+import {findAllIndex, firstWordUpperCase, flattenArray, objDeepCopy, toHump} from './utils';
+import {TypeAnnotations} from './ast/typeAnnotationsMap';
+import recast from 'recast';
+import marked from 'marked';
+import { readFileSync, appendFileSync } from 'fs';
+import ExportInterfaceAst from './ast/TSExample/exportInterfaceAst';
+import isCutOut from './art.config';
 
 // 当前的一个interface命名保存数组
 const interfaceNameArr = [];
 
 // first: get md ast
-const md = readFileSync("./test.md", "UTF8");
+const md = readFileSync('./test.md', 'UTF8');
 const tokens = marked.lexer(md);
 
 // second: md ast change into typescript ast and format to interface.ts
@@ -29,20 +19,20 @@ const extractAllInterfaceChunk = (mdAst): never[] => {
   const interfaceGather = [];
   let chunkStart = 0;
   mdAst.forEach((value, index) => {
-    if (value.type === "list_start" && index) {
+    if (value.type === 'list_start' && index) {
       const chunkData = mdAst.slice(chunkStart, index);
       interfaceGather.push(extractUseTables(
-        ["detail", "explain"],
+        ['detail', 'explain'],
         chunkData
       ) as never);
     }
-    if (value.type === "list_start") {
+    if (value.type === 'list_start') {
       chunkStart = index;
     }
     if (index === mdAst.length - 1) {
       const chunkData = mdAst.slice(chunkStart, index);
       interfaceGather.push(extractUseTables(
-        ["detail", "explain"],
+        ['detail', 'explain'],
         chunkData
       ) as never);
     }
@@ -63,13 +53,13 @@ const extractChooseTable = (tableText: string, chunkData: any[]) => {
   chunkData.forEach((value, index) => {
     // confirm right table chunk
     if (
-      value.type === "heading" &&
+      value.type === 'heading' &&
       value.depth === 4 &&
       value.text === tableText
     ) {
       result =
         chunkData.find((tableValue, tableIndex) => {
-          if (tableIndex > index && tableValue.type === "table") {
+          if (tableIndex > index && tableValue.type === 'table') {
             return tableValue;
           }
         }) || {};
@@ -80,23 +70,16 @@ const extractChooseTable = (tableText: string, chunkData: any[]) => {
 
 // 生成最终的一个interface名字
 const createInterfaceName = (detailTable: any) => {
-  let resultStr: string = "";
-  let urlStr: string = "";
+  let resultStr: string = '';
+  let urlStr: string = '';
   const tableCells = flattenArray(detailTable.cells);
   tableCells.find((value, index) => {
-    if (value === "request-url") {
+    if (value === 'request-url') {
       urlStr = tableCells[index + 1];
     }
   });
-  urlStr = isCutOut ? urlStr.replace(/\/\w+/, "") : urlStr;
-  console.log(urlStr)
-  resultStr =
-    "I" +
-    // TODO: 需要解决三级的时候名字带.问题 ，写一个共同方法
-    // urlStr.replace(/\/(\w)/g, (all, letter) => {
-    //   return letter.toUpperCase();
-    // });
-    toHump(urlStr, '/')
+  urlStr = isCutOut ? urlStr.replace(/\/\w+/, '') : urlStr;
+  resultStr = 'I' + toHump(urlStr, '/');
   return resultStr;
 };
 
@@ -117,7 +100,7 @@ const createInterfaceBody = (explainTable: any, currentParent, prefixName?: any)
   const result = [];
   explainTable.cells.forEach((value, index) => {
     const bodyTemplate = objDeepCopy(
-      interfaceAst.ExportInterfaceAst.body.body[0]
+      ExportInterfaceAst.body.body[0]
       ) as any;
     if (value[parentsIndex] === currentParent) {
       bodyTemplate.key.name = value[nameIndex];
@@ -173,13 +156,13 @@ const isRepeatName = (interfaceName: never) => {
  * 当需要创建的时候可以把其他父节点为其值的创建body
  */
 const createChildrenInterface = (singleCell, childrenBody, parentName, finalName, prefixName) => {
-  // prefixName = prefixName + firstWordUpperCase(parentName.replace(/\./g,""));
+  // prefixName = prefixName + firstWordUpperCase(parentName.replace(/\./g,'));
   prefixName = prefixName + toHump(firstWordUpperCase(parentName), '.');
   appendInterfaceTofile(parentName, createInterfaceBody(childrenBody, parentName, prefixName), finalName)
 }
 
 const getTypeAnnotation = (type, name) => {
-  const anntationTpl = objDeepCopy(interfaceAst.ExportInterfaceAst.body.body[0].typeAnnotation) as any;
+  const anntationTpl = objDeepCopy(ExportInterfaceAst.body.body[0].typeAnnotation) as any;
   anntationTpl.typeAnnotation.type = TypeAnnotations[type];
   if (type === 'array') {
     anntationTpl.typeAnnotation.elementType.typeName.name = name;
@@ -192,6 +175,7 @@ const getTypeAnnotation = (type, name) => {
 
 // third: parse to interface.ts
 const replaceTsAst = () => {
+
   let result = [];
   const interfaceGather = extractAllInterfaceChunk(tokens);
   interfaceGather.forEach((value, index) => {
@@ -211,17 +195,17 @@ interface interfaceAstReuslt {
 }
 
 const appendInterfaceTofile = (interfaceName, interfaceBody, finalName?: string) => {
-  const singleChunk = objDeepCopy(interfaceAst) as any;
-  singleChunk.ExportInterfaceAst.id.name = finalName || interfaceName;
-  singleChunk.ExportInterfaceAst.body.body = interfaceBody;
+  const singleChunk = objDeepCopy(ExportInterfaceAst) as any;
+  singleChunk.id.name = finalName || interfaceName;
+  singleChunk.body.body = interfaceBody;
   let result:interfaceAstReuslt = {
     type: 'ExportNamedDeclaration'
   }
-  result.declaration = singleChunk.ExportInterfaceAst
+  result.declaration = singleChunk
   appendFileSync(
-    "./result/test.ts",
+    './result/test.ts',
     `\n${recast.print(result).code}`,
-    "utf8"
+    'utf8'
   );
 }
 
