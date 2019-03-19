@@ -1,7 +1,7 @@
 
 import { findAllIndex, firstWordUpperCase, objDeepCopy } from './tools';
 import ExportInterfaceAst from '../ast/TSExample/exportInterfaceAst';
-import { getTypeAnnotation } from '../parserMD';
+import { getTypeAnnotation } from './getAnnotation';
 import { createChildrenInterface } from './createChild';
 import { isRepeatName } from './createName';
 
