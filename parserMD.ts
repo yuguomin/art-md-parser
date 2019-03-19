@@ -1,7 +1,6 @@
-import recast from 'recast';
-import { appendFileSync } from 'fs';
 import { findAllIndex, firstWordUpperCase, flattenArray, objDeepCopy, toHump } from './utils/tools';
 import { TypeAnnotations } from './ast/typeAnnotationsMap';
+import { appendInterfaceTofile } from './utils/appendFile';
 import ExportInterfaceAst from './ast/TSExample/exportInterfaceAst';
 import isCutOut from './art.config';
 
@@ -109,24 +108,4 @@ const getTypeAnnotation = (type, name) => {
     anntationTpl.typeAnnotation.typeName.name = name;
   }
   return anntationTpl;
-}
-
-interface interfaceAstReuslt {
-  type: string;
-  declaration?: any;
-}
-
-export const appendInterfaceTofile = (interfaceName, interfaceBody, finalName?: string) => {
-  const singleChunk = objDeepCopy(ExportInterfaceAst) as any;
-  singleChunk.id.name = finalName || interfaceName;
-  singleChunk.body.body = interfaceBody;
-  let result:interfaceAstReuslt = {
-    type: 'ExportNamedDeclaration'
-  }
-  result.declaration = singleChunk
-  appendFileSync(
-    './result/test.ts',
-    `\n${recast.print(result).code}`,
-    'utf8'
-  );
 }
