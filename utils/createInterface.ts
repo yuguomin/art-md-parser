@@ -1,7 +1,8 @@
 import { extractAllInterfaceChunk } from './extractData';
-import { createInterfaceName, createInterfaceBody } from '../parserMD';
+import { createInterfaceName } from './createName';
+import { createInterfaceBody } from './createBody';
 import { highestParent } from '../ast/typeAnnotationsMap';
-import {appendInterfaceTofile} from './appendFile';
+import { appendInterfaceTofile } from './appendFile';
 
 const createInterface = (tokens) => {
   const interfaceGather = extractAllInterfaceChunk(tokens);
